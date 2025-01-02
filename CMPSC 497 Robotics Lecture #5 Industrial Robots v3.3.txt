@@ -1,0 +1,191 @@
+
+Dobot Magician Robot Arm + Conveyor Belt + Sensors
+Robot Arm ==> 4 DOF ==> 0.2mm repeatability
+Suction cup Pneumatic gripper
+3D printer mechanism pen and pen holder 13 I/O ports
+Base dimensions: 158mm (6.2 in.) by 158mm (6.2 in)
+
+
+Dobot Magician Axes of Rotation and joint labels (J1, J2, J3, J4)
+
+Dobot Magician Cartesian Coordinate System (X, Y, Z, R)
+
+
+Number of Axis: 4 Payload: 500g (1.1 lb) Max. Reach: 320mm.
+Position Repeatability: 0.2 mm
+
+Ranges are limited:
+Keep end-effector within area defined by arcs as shown.
+`
+When y = 0,
+200 < x < 315mm
+45 deg
+90 deg
+315 mm
+200
+
+valid
+region
+Y
+200 mm
+x
+valid
+region
+-200
+-45 deg
+-90 deg
+-315 mm
+
+When x = 0
+-315 < y < -200
+Or
+200 < y < 315
+Height z
+-60 < z <180
+Note: z = 0 at top of base
+
+Question: How do you draw a straight line?
+
+#Sample Python Code (Dobot API)	
+import math
+dType.SetPTPJointParams(api,200,200,200,200,200,200,200,200,0) # set accelerations, etc.
+dType.SetPTPCoordinateParams(api,200,200,200,200,0)
+dType.SetPTPJumpParams(api, 10, 200, 0)
+dType.SetPTPCommonParams(api, 100, 100, 0)
+
+moveX = 0; moveY =0; moveZ= 10; moveFlag= -1
+
+pos = dType.GetPose(api) # get current x,y,z x = pos[0]	# all x, y, z coordinates in mm
+y = pos[1]
+z = pos[2]
+rHead = pos[3] # angle of rotation (degrees)
+
+
+
+1. Jog (Joint Operation Group) Motion: In Jog motion, the robot moves its joints one  by one, independently of each other. Each joint moves at a constant speed, and the motion of the robot is determined by the individual joint angles. Jog motion is useful when you want to control specific joints of the robot arm and make precise adjustments to the robot's position. It is commonly used for manual control, calibration, or during the initial setup of the robot.
+
+2. PTP (Point-to-Point) Motion: In PTP motion, the robot moves from one point to another in the Cartesian coordinate system. The motion planner calculates the path and the required joint angles for the robot to move from the start position to the target position. In PTP motion, the robot moves all joints simultaneously, and the focus is on reaching the target position accurately, rather than controlling the motion of individual joints. PTP motion is useful for tasks like pick-and-place, where the robot needs to move from one point to another as quickly and efficiently as possible. We will use PTP primarily
+
+Jump Mode (PtpMode = 0)
+(Note: jump height can be adjusted;
+Default = 20 mm; we can increase it later)
+
+Linear Mode (PtpMode = 2)
+	 
+x1, y1, z1	x2, y2, z2
+
+20 mm
+
+x1, y1, z1	x2, y2, z2
+
+current position
+
+target position
+
+current position
+
+target position
+
+Linear Mode automatically moves directly (straight line) from current position to target position.
+
+Jump Mode automatically raises object then moves to target location and automatically lowers arm (this is to avoid collisions as robot arm is moving to target
+
+
+
+#Example: Move arm to a position (x, y, z, rot)	
+import DobotDllType as dType #Load Dll
+api = dType.load() #Connect Dobot
+state = dType.ConnectDobot(api, "", 115200)[0]	# connect only one time in your program
+
+# set parameter (velocities, accelerations, etc.) Do once. NOTE: do not modify these values
+dType.SetHOMEParams(api, 200, 200, 200, 200)
+dType.SetPTPJointParams(api, 200, 200, 200, 200, 200, 200, 200, 200)
+dType.SetPTPCommonParams(api, 100, 100)
+
+x = 200; y = 0; z = 50; rHead = 0	# set an arbitrary position of robot arm effector (pen, suction cup, gripper, etc.)
+
+ptpMode = 2	# use 2 for linear mode (for jump mode, set to 0; use SetPTPJumpParams(api, jumpHeight, zLimit, 0) to set jump(mm) # PTP Motion commands (all units in mm)
+dType.SetPTPCmd(api, ptpMode, x, y, z, rHead, 0)	# move robot to x, y, z, rot to position
+dType.dSleep(2000)	# delay 2 seconds
+dType.SetPTPCmd(api, ptpMode, x+50, y, z, rHead, 0)	# extend arm in x direction (forward) by 50 mm
+10
+
+#Example: Get Position (x, y, z, rot) of end-effector	
+
+
+
+11
+
+	Example: Turning on/off the Vacuum Pump	
+
+
+
+
+This demo program turns on the vacuum pump for 4 seconds, then turns off the vacuum pump.
+
+	Example: Checking Status of Photocell Sensor	
+
+
+
+
+
+
+
+
+
+	Example: Turning on the Conveyor Belt	
+# Turn on the conveyor belt for a fixed time duration
+import DobotDllType as dType
+
+api = dType.load() #Connect Dobot
+state = dType.ConnectDobot(api, "", 115200)[0] print("Dobot Connected...")
+
+# setEMotor(api, index, isEnabled, speed) NOTE: set index = 0 for top motor port on Dobot dType.SetEMotor(api, 0, 1, 4000)		# set E motor (speed range 4000 to 6000) dType.dSleep(5000)	# keep conveyor belt on for 5 seconds (adjust as needed)
+
+# Turn off the conveyor belt
+dType.SetEMotor(api, 0, 0, 0)	# set E motor speed to 0 (stop)
+
+	Example: Reading Output of Color Sensor	
+
+
+import DobotDllType as dType
+api = dType.load()
+#Connect Dobot
+state = dType.ConnectDobot(api, "", 115200)[0] print("Dobot Connected...")
+
+# Initialize the color sensor (do one time)
+isEnable = 1
+colorPort = 2 # GP 2 check your setup for the port dType.SetColorSensor(api, isEnable, colorPort, 0)
+
+# Read the color sensor data
+sensorData = dType.GetColorSensor(api)
+
+# Print the color sensor data (returns 1 or 0)
+print("Red: ", sensorData[0])
+print("Green: ", sensorData[1]) print("Blue: ", sensorData[2])
+
+
+
+
+
+
+NOTE: color sensor worked well with red blocks but returned "blue" for all other colors including no blocks.
+ Consider putting GetColorSensor() command in a loop.
+
+
+
+import DobotDllType as dType api = dType.load()
+#Connect Dobot
+state = dType.ConnectDobot(api, "", 115200)[0] print("Dobot Connected...")
+
+dType.SetHOMECmd(api, 0, 1)[0]
+
+
+
+dType.dSleep(5000) dType.DisconnectDobot(api) print("Dobot Disconnected...")
+
+// NOTE: use command below(optional) to redefine the location of
+// the home position
+// dType.SetHOMEParams(api, x, y, z, rHead, isQueued=1)[0]
+
+NOTE:Run this calibration code at least once before starting the labs. You may need to calibrate again as needed.
