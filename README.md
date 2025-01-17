@@ -57,9 +57,6 @@ This project provides an agentic interface to control the Dobot Magician robot a
 
 2. Use the application interface to command the Dobot Magician.
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
-
 ## Acknowledgments
 - [Google AI Studio](https://aistudio.google.com/) for the Gemini API.
 - Dobot Magician for hardware support.
