@@ -104,7 +104,7 @@ st.title("VLM Agentic Interface for Dobot Magician")
 
 # Input Section
 user_command = st.text_input(
-    "Enter your command:", "Move the yellow block to the right of the blue block.")
+    "Enter your command:", "Move the yellow block to the right of the blue block. (Hint: the blocks are at z = -50)")
 run_button = st.button("Run")
 
 if run_button:
