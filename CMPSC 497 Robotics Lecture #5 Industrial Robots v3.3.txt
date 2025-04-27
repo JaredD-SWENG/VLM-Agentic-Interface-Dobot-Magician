@@ -112,24 +112,47 @@ dType.SetPTPCmd(api, ptpMode, x+50, y, z, rHead, 0)	# extend arm in x direction 
 
 #Example: Get Position (x, y, z, rot) of end-effector	
 
+import DobotDllType as dType
+api = dType.load()
+#Connect Dobot
+state = dType.ConnectDobot(api, "", 115200)[0]
+print("Dobot Connected...")
+pos = dType.GetPose(api)
+x = pos[0]
+y = pos[1]
+z = pos[2]
+rHead = pos[3]
+print(x,y,z, rHead)
+dType.DisconnectDobot(api)
+
+Example: Turning on/off the Vacuum Pump	
 
 
-11
-
-	Example: Turning on/off the Vacuum Pump	
-
-
+ctrl_mode = 1
+dType.SetEndEffectorSuctionCup(api, suction_cup, enable_pump, ctrl_mode)
+dType.dSleep(4000) # leave vacuum pump on for 4 seconds (adjust as needed)
+# Turn off the vacuum pump
+enable_pump = 0
+dType.SetEndEffectorSuctionCup(api, suction_cup, enable_pump, ctrl_mode)
 
 
 This demo program turns on the vacuum pump for 4 seconds, then turns off the vacuum pump.
 
 	Example: Checking Status of Photocell Sensor	
 
-
-
-
-
-
+#Connect Dobot
+state = dType.ConnectDobot(api, "", 115200)[0]
+isEnable = 1
+infraredPort = 2 # plug IR sensor into GP4 (port 2)
+dType.SetInfraredSensor(api, isEnable, infraredPort, version = 0)
+while True:
+# Get the current status of the photocell sensor
+IRSensor = dType.GetInfraredSensor(api,infraredPort)
+# Print the current status of the IR sensor
+if IRSensor[0] == 0:
+print("The IR sensor is OFF") # no object
+else:
+print("The IR sensor is ON") # detects an object 
 
 
 
@@ -188,4 +211,4 @@ dType.dSleep(5000) dType.DisconnectDobot(api) print("Dobot Disconnected...")
 // the home position
 // dType.SetHOMEParams(api, x, y, z, rHead, isQueued=1)[0]
 
-NOTE:Run this calibration code at least once before starting the labs. You may need to calibrate again as needed.
+NOTE:Run this calibration code at least once before starting the labs. You may need to calibrate again as needed. (Don't home along with other insturctions)
